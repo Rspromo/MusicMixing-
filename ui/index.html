@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>__APP__</title>
+<link rel="stylesheet" href="/ui/style.css">
+<script>window.TOKEN = "__TOKEN__";</script>
+</head>
+<body>
+<nav class="rail">
+  <div class="brand">Studio<br>Autopilot</div>
+  <button class="tab active" data-tab="mix">Auto Mix</button>
+  <button class="tab" data-tab="download">Download</button>
+  <button class="tab" data-tab="lyrics">Lyric Video</button>
+  <button class="tab" data-tab="video">Video Editor</button>
+  <button class="tab" data-tab="tune">Auto Tune</button>
+  <button class="tab" data-tab="tips">Studio Tips</button>
+  <button class="tab" data-tab="settings">Settings</button>
+  <div class="rail-foot" id="sysinfo">v__VERSION__</div>
+</nav>
+
+<main>
+<section id="mix" class="page active">
+  <header><h1>Auto Mix &amp; Master</h1><p>Stems ka folder dein. Rough mix, master aur Ableton ke liye processed stems milenge.</p></header>
+  <div class="panel">
+    <label>Stems folder
+      <div class="row"><input id="mixFolder" placeholder="Ek hi start point se export kiye hue WAV stems"><button data-pick="folder" data-into="mixFolder">Browse</button><button class="primary" id="mixScan">Scan</button></div>
+    </label>
+    <div class="grid3">
+      <label>Song ka naam<input id="mixName" placeholder="Song"></label>
+      <label>Genre<select id="mixGenre"></select></label>
+      <label>Loudness target (LUFS)<input id="mixLufs" type="number" step="0.5" placeholder="Genre ke hisaab se"></label>
+      <label>Vocal level: <output id="mixVocalOut">0 dB</output><input id="mixVocal" type="range" min="-3" max="3" step="0.5" value="0"></label>
+      <label>Reverb amount: <output id="mixReverbOut">100%</output><input id="mixReverb" type="range" min="0" max="2" step="0.05" value="1"></label>
+      <label>Reference gaana (optional)
+        <div class="row"><input id="mixRef" placeholder="Jaisa sound chahiye"><button data-pick="file" data-types="audio" data-into="mixRef">Browse</button></div>
+      </label>
+    </div>
+    <div class="checks">
+      <label><input type="checkbox" id="mixVariants" checked> Vocal Up aur Instrumental bhi banao</label>
+      <label><input type="checkbox" id="mixStems" checked> Ableton ke liye processed stems</label>
+    </div>
+  </div>
+  <div class="panel" id="stemPanel" hidden>
+    <h2>Stems <span class="muted" id="stemCount"></span></h2>
+    <p class="muted">Galat pehchana ho to dropdown se badal dein. "Guess" wale sound se pehchane gaye hain, unhe zaroor dekhein.</p>
+    <table><thead><tr><th>File</th><th>Role</th><th></th></tr></thead><tbody id="stemRows"></tbody></table>
+    <button class="primary big" id="mixRun">Mix shuru karo</button>
+  </div>
+  <div class="panel" id="mixResult" hidden></div>
+</section>
+
+<section id="download" class="page">
+  <header><h1>Link se Download</h1><p>YouTube, Spotify track ya kisi bhi supported site ka link daalein. BPM aur Key apne aap nikalenge.</p></header>
+  <div class="panel">
+    <label>Link<input id="dlUrl" placeholder="https://..."></label>
+    <div class="grid3">
+      <label>Format<select id="dlKind"><option value="mp3">MP3 (320k)</option><option value="wav">WAV</option><option value="mp4">Video MP4</option></select></label>
+      <label>Video quality<select id="dlQuality"><option value="best">Best</option><option value="2160">4K</option><option value="1080">1080p</option><option value="720">720p</option></select></label>
+      <label>Download folder
+        <div class="row"><input id="dlFolder"><button id="dlPickFolder">Set</button></div>
+      </label>
+    </div>
+    <div class="row"><button class="primary big" id="dlStart">Download</button><button id="dlOpenFolder">Folder kholo</button><button id="dlAddLocal">Apni file analyse karo</button></div>
+  </div>
+  <div class="panel">
+    <h2>Downloads</h2>
+    <div class="filters"><button class="chip on" data-filter="all">Sab</button><button class="chip" data-filter="audio">Audio</button><button class="chip" data-filter="video">Video</button></div>
+    <table><thead><tr><th>Song</th><th>Type</th><th>BPM</th><th>Key</th><th>Length</th><th></th></tr></thead><tbody id="libRows"></tbody></table>
+  </div>
+</section>
+
+<section id="lyrics" class="page">
+  <header><h1>Lyric Video</h1><p>Gaana dein, lyrics nikalein, galtiyan theek karein, phir video render karein. Render isi PC par hota hai.</p></header>
+  <div class="panel">
+    <h2>1. Lyrics nikalo</h2>
+    <div class="grid3">
+      <label>Gaana
+        <div class="row"><input id="lyAudio"><button data-pick="file" data-types="audio" data-into="lyAudio">Browse</button></div>
+      </label>
+      <label>Sirf vocal file (optional, zyada accurate)
+        <div class="row"><input id="lyVocal"><button data-pick="file" data-types="audio" data-into="lyVocal">Browse</button></div>
+      </label>
+      <label>Bhasha<select id="lyLang"><option value="">Auto</option><option value="hi">Hindi</option><option value="pa">Punjabi</option><option value="en">English</option><option value="ur">Urdu</option><option value="bn">Bengali</option><option value="ta">Tamil</option><option value="te">Telugu</option><option value="mr">Marathi</option></select></label>
+      <label>Engine<select id="lyEngine"><option value="local">Local Whisper (free, PC par)</option><option value="openai">OpenAI (key chahiye)</option></select></label>
+      <label>Whisper model<select id="lyModel"><option value="small">small (fast)</option><option value="medium" selected>medium</option><option value="large-v3">large-v3 (best, powerful PC)</option></select></label>
+      <div class="checks tight">
+        <label><input type="checkbox" id="lyPolish"> OpenAI se spelling theek karo</label>
+        <label><input type="checkbox" id="lyRoman"> Roman Hinglish mein likho</label>
+      </div>
+    </div>
+    <button class="primary" id="lyExtract">Lyrics nikalo</button>
+  </div>
+  <div class="panel" id="lyEditor" hidden>
+    <h2>2. Lyrics theek karo <span class="muted" id="lyCount"></span></h2>
+    <div class="lines" id="lyLines"></div>
+    <button id="lyAddLine">Line jodo</button>
+  </div>
+  <div class="panel">
+    <h2>3. Look aur render</h2>
+    <h3>Background</h3>
+    <div class="grid3">
+      <label>Source<select id="lvSource"><option value="mix">Pexels + Wikimedia</option><option value="pexels">Sirf Pexels</option><option value="commons">Sirf Wikimedia Commons</option><option value="local">Sirf meri files</option></select></label>
+      <label>Search keywords (comma se alag)<input id="lvTerms" placeholder="sunset, rain, city lights"></label>
+      <label>Apni images/videos
+        <div class="row"><input id="lvLocal" readonly placeholder="Koi nahi"><button id="lvPickLocal">Chuno</button></div>
+      </label>
+      <label>Har visual: <output id="lvClipOut">7 sec</output><input id="lvClip" type="range" min="3" max="20" value="7"></label>
+      <label>Andhera: <output id="lvDimOut">35%</output><input id="lvDim" type="range" min="0" max="0.8" step="0.05" value="0.35"></label>
+      <label>Blur: <output id="lvBlurOut">0</output><input id="lvBlur" type="range" min="0" max="20" value="0"></label>
+    </div>
+    <h3>Text</h3>
+    <div class="grid3">
+      <label>Style<select id="lvStyle"><option value="karaoke">Karaoke highlight</option><option value="word_pop">Word by word pop</option><option value="fade">Simple fade</option><option value="slide">Slide up</option><option value="next_line">Agli line bhi dikhao</option></select></label>
+      <label>Font<select id="lvFont"><option>Nirmala UI</option><option>Segoe UI</option><option>Arial</option><option>Georgia</option><option>Impact</option><option>Mangal</option></select></label>
+      <label>Size: <output id="lvSizeOut">74</output><input id="lvSize" type="range" min="30" max="140" value="74"></label>
+      <label>Position<select id="lvPosition"><option value="center">Center</option><option value="bottom">Bottom</option><option value="top">Top</option></select></label>
+      <label>Text colour<input id="lvColor" type="color" value="#ffffff"></label>
+      <label>Highlight colour<input id="lvHigh" type="color" value="#ffc94d"></label>
+      <label>Outline: <output id="lvOutlineOut">3</output><input id="lvOutline" type="range" min="0" max="10" value="3"></label>
+      <label>Shadow: <output id="lvShadowOut">2</output><input id="lvShadow" type="range" min="0" max="10" value="2"></label>
+      <label>Timing shift (sec)<input id="lvOffset" type="number" step="0.05" value="0"></label>
+    </div>
+    <h3>Video</h3>
+    <div class="grid3">
+      <label>Format<select id="lvAspect"><option value="16:9">16:9 YouTube</option><option value="9:16">9:16 Reel/Shorts</option><option value="1:1">1:1 Square</option></select></label>
+      <label>Resolution<select id="lvHeight"><option value="720">720p</option><option value="1080" selected>1080p</option><option value="2160">4K</option></select></label>
+      <label>FPS<select id="lvFps"><option>24</option><option selected>30</option><option>60</option></select></label>
+      <label>Title<input id="lvTitle" placeholder="Song ka naam"></label>
+      <label>Artist<input id="lvArtist"></label>
+      <label>Logo (optional)
+        <div class="row"><input id="lvLogo"><button data-pick="file" data-types="image" data-into="lvLogo">Browse</button></div>
+      </label>
+    </div>
+    <div class="checks">
+      <label><input type="checkbox" id="lvKen" checked> Photos par slow zoom/move</label>
+      <label><input type="checkbox" id="lvViz"> Audio waveform</label>
+      <label><input type="checkbox" id="lvUpper"> CAPITAL letters</label>
+      <label><input type="checkbox" id="lvBold" checked> Bold</label>
+    </div>
+    <div class="row"><button id="lvPreview">30 sec preview</button><button class="primary big" id="lvRender">Poora video banao</button></div>
+  </div>
+</section>
+
+<section id="video" class="page">
+  <header><h1>Video Editor</h1><p>Gaana aur shoot ke clips dein. Edited video aur Premiere Pro file milegi.</p></header>
+  <div class="panel">
+    <div class="grid3">
+      <label>Gaana
+        <div class="row"><input id="veSong"><button data-pick="file" data-types="audio" data-into="veSong">Browse</button></div>
+      </label>
+      <label>Clips ka folder
+        <div class="row"><input id="veFolder"><button data-pick="folder" data-into="veFolder">Browse</button></div>
+      </label>
+      <label>Video clips<div class="muted pad" id="veCount">Abhi koi nahi</div></label>
+      <label>FPS<select id="veFps"><option>24</option><option>25</option><option selected>30</option><option>60</option></select></label>
+      <label>Sirf itne second banao (0 = poora)<input id="veLength" type="number" value="0" min="0"></label>
+      <label>Alag version (seed)<input id="veSeed" type="number" value="1" min="1"></label>
+    </div>
+  </div>
+  <div class="panel">
+    <h2>Editing style</h2>
+    <div class="styles" id="veStyles"></div>
+    <p class="muted">Clips mein camera ki scratch audio ho to lip-sync apne aap match hota hai. Bina audio wale clips b-roll bante hain.</p>
+    <button class="primary big" id="veRun">Edit banao</button>
+  </div>
+  <div class="panel" id="veResult" hidden></div>
+</section>
+
+<section id="tune" class="page">
+  <header><h1>Auto Tune</h1><p>Note-by-note correction, jaise Melodyne mein haath se karte hain. Vibrato aur murki bachi rehti hai.</p></header>
+  <div class="panel">
+    <h2>Input</h2>
+    <div class="grid3">
+      <label>Vocal stems
+        <div class="row"><input id="tnVocals" readonly placeholder="Ek ya zyada vocals"><button id="tnPick">Chuno</button></div>
+      </label>
+      <label>Music / beat (Key nikalne ke liye)
+        <div class="row"><input id="tnMusic"><button data-pick="file" data-types="audio" data-into="tnMusic">Browse</button></div>
+      </label>
+      <label>Ya Ableton project (.als)
+        <div class="row"><input id="tnAls"><button data-pick="file" data-types="als" data-into="tnAls">Browse</button><button id="tnBounce">Tracks nikalo</button></div>
+      </label>
+      <label>Key<select id="tnKey"><option value="">Auto detect</option></select></label>
+      <label>Scale / Raag<select id="tnScale"><option value="auto">Auto (Major/Minor)</option></select></label>
+      <label>Style<select id="tnPreset"><option value="natural">Natural (Melodyne jaisa)</option><option value="tight">Tight (pop)</option><option value="hard">Hard (T-Pain effect)</option></select></label>
+      <label>Correction: <output id="tnStrengthOut">80%</output><input id="tnStrength" type="range" min="0.2" max="1" step="0.05" value="0.8"></label>
+      <label>Max shift (semitone)<input id="tnShift" type="number" value="1.3" step="0.1" min="0.2" max="3"></label>
+    </div>
+    <button class="primary big" id="tnRun">Tune karo</button>
+  </div>
+  <div class="panel" id="tnResult" hidden>
+    <h2>Result</h2>
+    <div id="tnSummary"></div>
+    <canvas id="tnChart" width="1200" height="320"></canvas>
+    <p class="muted"><span class="dot before"></span> Pehle <span class="dot after"></span> Baad mein. Lines scale ke notes hain.</p>
+  </div>
+</section>
+
+<section id="tips" class="page">
+  <header><h1>Studio Tips</h1><p>Workload 80% kam karne ka tarika.</p></header>
+  <div class="panel prose">
+    <h2>Roz ka workflow</h2>
+    <ol>
+      <li><b>Ableton template banayein.</b> Vocal, drums, music ke group, returns aur naming pehle se set. Har session isi se shuru karein.</li>
+      <li><b>Naming fix karein.</b> LeadVox, Harmony_L, Kick jaise naam rakhein. Tool ki pehchan isi se sabse sahi hoti hai.</li>
+      <li><b>Bar 1 se export karein.</b> Saare stems ek hi start point se, same sample rate, bina master chain ke.</li>
+      <li><b>Pehle tune, phir mix.</b> Auto Tune se vocals nikaalein, unhi ko Auto Mix mein daalein.</li>
+      <li><b>Mix ko Ableton mein khatam karein.</b> Processed stems daalein, sirf automation aur creative moves karein.</li>
+    </ol>
+    <h2>Time bachane wale kaam</h2>
+    <ul>
+      <li><b>Client intake form.</b> Reference gaana, BPM, Key, deadline aur revisions session se pehle le lein.</li>
+      <li><b>Revisions fix karein.</b> Do free revisions, uske baad paid. Vocal Up version pehle hi bhej dein, aadhi demands wahin khatam.</li>
+      <li><b>Folder structure.</b> Client / Song / 01_Raw, 02_Tuned, 03_Mix, 04_Master, 05_Video.</li>
+      <li><b>Khud ka reference folder.</b> Har genre ka ek best mix rakhein aur usse Reference mein dein.</li>
+      <li><b>Takes ko raat bhar process karein.</b> Heavy mix aur video render kaam ke baad queue kar dein.</li>
+      <li><b>Packages bechein.</b> Song + Mix + Lyric video + Reel ek paket. Tool video ka kaam sasta kar deta hai, to kamai badhti hai.</li>
+    </ul>
+    <h2>Ye aapko khud karna hai</h2>
+    <ul>
+      <li>Final sunna, kam se kam do speakers aur phone par.</li>
+      <li>Song ke emotional moves aur vocal automation.</li>
+      <li>Client se baat aur creative faisle.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="settings" class="page">
+  <header><h1>Settings</h1><p>Sab kuch isi software ke StudioData folder mein save hota hai.</p></header>
+  <div class="panel">
+    <label>Output folder
+      <div class="row"><input id="setOutput"><button data-pick="folder" data-into="setOutput">Browse</button></div>
+    </label>
+    <label>OpenAI API key (optional)<input id="setOpenai" type="password" placeholder="Local Whisper ke liye zaroori nahi"></label>
+    <label>Pexels API key (free, pexels.com/api se)<input id="setPexels" type="password"></label>
+    <div class="grid3">
+      <label>OpenAI chat model<input id="setChat"></label>
+      <label>Video encoder<select id="setEncoder"><option value="auto">Auto (GPU mile to GPU)</option><option value="libx264">CPU</option><option value="h264_nvenc">NVIDIA</option><option value="h264_amf">AMD</option><option value="h264_qsv">Intel</option></select></label>
+    </div>
+    <button class="primary" id="setSave">Save</button>
+    <p class="muted" id="setStatus"></p>
+  </div>
+</section>
+</main>
+
+<aside class="queue">
+  <h2>Progress</h2>
+  <div id="jobs"><p class="muted">Abhi koi kaam nahi chal raha.</p></div>
+</aside>
+<div id="toast" hidden></div>
+<script src="/ui/app.js"></script>
+</body>
+</html>

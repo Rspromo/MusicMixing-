@@ -1,0 +1,13 @@
+numpy
+scipy
+soundfile
+soxr
+pyloudnorm
+flask
+waitress
+requests
+pyworld
+yt-dlp
+yt-dlp-ejs
+faster-whisper
+pyinstaller
